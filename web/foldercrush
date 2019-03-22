@@ -1,0 +1,62 @@
+#!/usr/bin/env node
+const crypto = require('crypto');
+const readdir = require('recursive-readdir')
+const fs = require('fs');
+const program = require('commander');
+
+program.version('1.0.0')
+  .option('-i, --input [value]', 'Input folder')
+  .option('-o, --output [value]', 'Output folder')
+  .option('-l, --length [n]', 'Length of filename')
+  .option('-d, --dummy', 'Dummy run')
+  .option('-c, --clean', 'Clean output folder')
+  .parse(process.argv);
+
+const {input, output, prefix='', length=30, dummy, clean} = program;
+
+if( !input || !output ) {
+    program.outputHelp();
+    process.exit(1);
+}
+
+// check input exists
+if( !( fs.existsSync(input) && fs.lstatSync(input).isDirectory ) ) {
+    console.log( `${input} is not a directory`);
+    process.exit(1);
+}
+
+// check output exists
+if( !( fs.existsSync(output) && fs.lstatSync(output).isDirectory ) ) {
+    console.log( `${output} is not a directory`);
+    process.exit(1);
+}
+
+function hash(str) {
+    return crypto.createHash('sha256').update(str).digest('hex').substring(0,length);
+}
+
+async function run() {
+
+    if( clean) {
+        const list = await readdir(output)
+        list.forEach( file => {
+            console.log( `deleting ${file}`)
+            if( !dummy ) {
+                fs.unlinkSync( file);
+            }
+        })
+    }
+    
+
+    const list = await readdir(input)
+    list.forEach( file => {
+        const f = `${file.replace(input,prefix)}`
+        if( !dummy ) {
+            fs.copyFileSync(file, `${output}/${hash(f)}`);
+        }
+        
+        console.log( `${hash(f)} => ${f}`);
+    });
+}
+
+run();
