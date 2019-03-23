@@ -17,20 +17,20 @@ void json200(JsonDocument doc, AsyncWebServerRequest * request) {
 }
 
 
-String hash( String payload ) {
-  char result[31];
+char * hash( const char * payload ) {
+  static char result[31];
   result[0] = '/';
   byte shaResult[32];
   
   mbedtls_md_context_t ctx;
   mbedtls_md_type_t md_type = MBEDTLS_MD_SHA256;
 
-  const size_t payloadLength = payload.length();
+  const size_t payloadLength = strlen(payload);
 
   mbedtls_md_init(&ctx);
   mbedtls_md_setup(&ctx, mbedtls_md_info_from_type(md_type), 0);
   mbedtls_md_starts(&ctx);
-  mbedtls_md_update(&ctx, (const unsigned char *) payload.c_str(), payloadLength);
+  mbedtls_md_update(&ctx, (const unsigned char *) payload, payloadLength);
   mbedtls_md_finish(&ctx, shaResult);
   mbedtls_md_free(&ctx);  
 
@@ -39,7 +39,7 @@ String hash( String payload ) {
     sprintf(&result[1+(i*2)], "%02x", (int)shaResult[i]);    
   }  
 
-  return String(result);
+  return result;
 }
 
 String getMimeType(String url){
@@ -226,7 +226,7 @@ void setup() {
     Serial.println(request->url());
     String url = request->url();
     if( url == "/" ) url = "/index.html";
-    request->send(SPIFFS, hash(url), getMimeType(url));            
+    request->send(SPIFFS, hash(url.c_str()), getMimeType(url));            
   });
   server.begin();
 
@@ -235,6 +235,8 @@ void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
 }
 
+int count = 0;
+
 void loop() {
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
@@ -242,6 +244,6 @@ void loop() {
     Serial.println(WiFi.localIP());
   }
   delay(1000);
-  
+  Serial.println(WiFi.localIP());
 
 }
