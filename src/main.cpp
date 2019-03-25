@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include "WiFi.h"
+#include <WiFiMulti.h>
 #include "ESPAsyncWebServer.h"
 #include "SPIFFS.h"
 #include "mbedtls/md.h"
@@ -67,18 +68,24 @@ int readJson(String body, JsonDocument &d) {
   return 1;
 }
 
+WiFiMulti wifiMulti;
+
 void setupLanWifi() {
   // save
   File file = SPIFFS.open("/esp32config.json");
   if( file.size() == 0 ) return;
   StaticJsonDocument<256> config;
-  
-  //String(file.readString())
   if( readJson( file.readString(), config) == 0 ) return;
-  const char * ssid = config["ssid"];
-  const char * password = config["password"];
 
-  WiFi.begin(ssid,password);
+  JsonArray wifiList =  config["wifiList"];
+  Serial.println("boom: " + wifiList.size());
+  for( int i=0; i<wifiList.size() ;i++) {
+    const char * ssid = wifiList[i]["ssid"];
+    const char * password = wifiList[i]["password"];
+    wifiMulti.addAP( ssid, password );
+  }
+
+  wifiMulti.run();
 }
 
 int readJsonBody(AsyncWebServerRequest *request, JsonDocument &d) {
@@ -151,12 +158,8 @@ void setup() {
     File file = SPIFFS.open("/esp32config.json", FILE_WRITE);
     serializeJsonPretty(d, file);
     file.close();
-    
-    const char* ssid = d["ssid"];
-    const char* password = d["password"];
-    Serial.println(ssid);
 
-    WiFi.begin(ssid, password);
+    setupLanWifi();
 
    request->send(200, "application/json", "{\"ok\": true}");
 
@@ -219,6 +222,14 @@ void setup() {
     doc["BT"] = (chip_info.features & CHIP_FEATURE_BT) > 0;
     doc["BLE"] = (chip_info.features & CHIP_FEATURE_BLE) > 0;
     doc["freeHeap"] = ESP.getFreeHeap();
+    if(WiFi.status() != WL_CONNECTED) {
+      doc["wifiStatus"] = "NOT_CONNECTED";    
+    }
+    else {
+      doc["wifiStatus"] = "CONNECTED";    
+    } 
+    doc["ip"] = WiFi.localIP().toString();
+
     json200(doc, request);
   });
 
@@ -238,7 +249,7 @@ void setup() {
 int count = 0;
 
 void loop() {
-  while (WiFi.status() != WL_CONNECTED) {
+  while (wifiMulti.run() != WL_CONNECTED) {
     delay(1000);
     Serial.println("Connecting to WiFi..");
     Serial.println(WiFi.localIP());
