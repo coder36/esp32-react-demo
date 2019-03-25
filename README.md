@@ -9,6 +9,7 @@ Provide API to:
 * Get esp32 info, eg number of cores
 * Turn LED on/off
 
+![screenshot](https://raw.githubusercontent.com/coder36/esp32-react-demo/master/images/react-screenshot.png)
 
 Demonstrate use of GET, POST, parsing json bodies, sha-256 hardware hashing.  Demonstrate how to integrate a [React](https://reactjs.org/) web application
 
@@ -17,8 +18,6 @@ Libraries:
 * [ESPAsyncWebServer](https://github.com/me-no-dev/ESPAsyncWebServer)
 * [platformIO](https://platformio.org/) to manage dependecies, flashing etc.  This is really nice plugin and IDE for [vscode](https://code.visualstudio.com/)
 
-
-![screenshot](https://github.com/coder36/https://github.com/coder36/esp32-react-demo/blob/master/images/react-screenshot.png)
 
 ### API
 
