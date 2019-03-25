@@ -1,8 +1,8 @@
 # ESP32 micro controller
-Develop a platform, on which to build ESP32 apps, backed by a React based web app.
+This is a proof of concept on which to build ESP32 apps, backed by a React based web apps.
 
-Provide API to:
-* Scan for wifis
+Provide API's to:
+* Scan for wifi's
 * Set wifi ssid and password
 * Provide multiple ssid/passwords
 * Get wifi status
@@ -21,7 +21,7 @@ Libraries:
 
 ### API
 
-Once,  the esp32 hs booted, it will create an unsecured local Access point `esp32`, which listens on `192.168.4.1`:
+Once, the esp32 hs booted, it will create an unsecured local Access point `esp32`, which listens on `192.168.4.1`:
 
 
 #### List wifi accesspoints:
@@ -85,18 +85,10 @@ On PlatformIO, press control+option-T, then select `PlatformIO: Upload File Syst
 #### Flash the application
 Flash the application image by pressing press control+option-T, then select `PlatformIO: Upload`.
 
-
 Once the ESP32 is flashed, it will create a wifi access point named `esp32`.  This is unsecured, so you can connect directly to it.
 
 
 # React web development
-The react app is based on [create-react-app](https://facebook.github.io/create-react-app/).  Assumung you're working on a mac, you'll need to install [nvm](https://github.com/creationix/nvm):
-
-```
-curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh | bash
-nvm install 10
-nvm use 10
-```
 
 ### Starting the dev server
 ```
